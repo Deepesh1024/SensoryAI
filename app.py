@@ -5,18 +5,17 @@ import threading
 from flask import Flask, render_template, Response, jsonify, request
 from groq import Groq
 from rtwhisper import TranscriptionApp
-# from langchain_groq import ChatGroq
-# from langchain.prompts import ChatPromptTemplate
+
 
 app = Flask(__name__)
 
-# def audio():
-#     app = TranscriptionApp(
-#         env_variable_name="GROQ_API_KEY",
-#         output_filename="temp.wav",
-#         pause_threshold=2.0
-#     )
-#     app.run()
+def audio():
+    app = TranscriptionApp(
+        env_variable_name="GROQ_API_KEY",
+        output_filename="temp.wav",
+        pause_threshold=2.0
+    )
+    app.run()
 
 # Global variables
 camera = None           # Holds our VideoCamera instance
@@ -27,25 +26,25 @@ camera_lock = threading.Lock()  # Lock for camera access
 
 # Initialize the Groq client with your API key
 client = Groq(api_key="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")
-# think = Groq(api_key="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")
+think = Groq(api_key="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")
 
-# completion = client.chat.completions.create(
-#     model="llama-3.3-70b-versatile",
-#     messages=[
-#         {
-#             "role": "system",
-#             "content": "i will give you some video summarisation and audio transcription you have to think and respond what is happening around you\n"
-#         }
-#     ],
-#     temperature=1,
-#     max_completion_tokens=1024,
-#     top_p=1,
-#     stream=True,
-#     stop=None,
-# )
+completion = client.chat.completions.create(
+    model="llama-3.3-70b-versatile",
+    messages=[
+        {
+            "role": "system",
+            "content": f"i will give you some video summarisation and audio transcription you have to think and respond what is happening around you {transcription} \n"
+        }
+    ],
+    temperature=1,
+    max_completion_tokens=1024,
+    top_p=1,
+    stream=True,
+    stop=None,
+)
 
-# for chunk in completion:
-#     print(chunk.choices[0].delta.content or "", end="")
+for chunk in completion:
+    print(chunk.choices[0].delta.content or "", end="")
 
 
 
