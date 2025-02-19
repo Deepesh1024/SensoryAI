@@ -7,29 +7,24 @@ import wave
 import pyaudio
 from flask import Flask, render_template, Response, jsonify, request
 from groq import Groq
-from rtwhisper import transcribe_audio  # your transcription function
+from rtwhisper import transcribe_audio 
 
 app = Flask(__name__)
 
-# Global variables for video processing
-camera = None           # Holds our VideoCamera instance
+camera = None           
 processing_active = False
 processing_thread = None
-unique_results = []     # Stores unique vision responses
-camera_lock = threading.Lock()  # Lock for camera access
+unique_results = []    
+camera_lock = threading.Lock()  
 
-# Global variables for audio recording
 audio_recording_active = False
 audio_thread = None
-# Save the audio file in the same directory as this script.
 AUDIO_FILENAME = os.path.join(os.path.dirname(__file__), "audio.m4a")
 
-# Initialize the Groq clients with your API keys
 client = Groq(api_key="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")
 think = Groq(api_key="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")
 bro = Groq(api_key="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")
 
-# (Optional) Initial bro system prompt – this can set the context for future interactions.
 _ = bro.chat.completions.create(
     model="llama-3.3-70b-versatile",
     messages=[
@@ -44,9 +39,6 @@ _ = bro.chat.completions.create(
     stop=None,
 )
 
-# ---------------------
-# Video Capture Section
-# ---------------------
 
 class VideoCamera:
     def __init__(self):
@@ -256,7 +248,6 @@ def summary():
         "\n\nVideo Observations:\n" + combined_responses +
         "\n\nAudio Transcription:\n" + transcription_result
     )
-
     messages = [
         {
             "role": "user",
