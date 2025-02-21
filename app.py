@@ -8,6 +8,7 @@ import pyaudio
 from flask import Flask, render_template, Response, jsonify, request
 from groq import Groq
 from rtwhisper import transcribe_audio 
+from TTS import text_to_speech
 
 app = Flask(__name__)
 
@@ -25,19 +26,6 @@ client = Groq(api_key="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"
 think = Groq(api_key="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")
 bro = Groq(api_key="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")
 
-_ = bro.chat.completions.create(
-    model="llama-3.3-70b-versatile",
-    messages=[
-        {
-            "role": "system",
-            "content": "You have been given eyes and ears to listen. Have a conversation or generate thoughts based on what the user shows you and says to you."
-        }
-    ],
-    temperature=1,
-    top_p=1,
-    stream=True,
-    stop=None,
-)
 
 
 class VideoCamera:
@@ -237,16 +225,18 @@ def summary():
     except Exception as e:
         transcription_result = f"Audio transcription failed: {e}"
 
-    # Combine the unique video observations.
     combined_responses = "\n".join(unique_results)
 
-    # Create an enhanced prompt for the bro model.
     enhanced_prompt = (
-        "You are a perceptive AI with both visual and auditory insights. "
-        "Based on the following observations, provide a creative, thoughtful, and concise and casual commentary , you can crack jokes . "
-        "Highlight interesting details, potential interpretations, and any hidden context you infer. "
-        "\n\nVideo Observations:\n" + combined_responses +
-        "\n\nAudio Transcription:\n" + transcription_result
+        """
+        You are BroCode an AI assistant that has been virtually brought into this world. 
+        You have been made by Deepesh who is a AI Developer and researcher.
+        Since a smart ChatBot cannot directly see or talk directly we have installed Video and Audio models for you to speak and See.
+        That will be coming to you as video insights and Audio breakdown, focus on the things that are changing based on the person description determine who is speaking and 
+        respond like you are talking to a person. And return what you see and what can you derive observations from the environment 
+        if its worth deriving the observation from the environment. Give the response in a casual and humours manner."""
+        "\n\n 📹 **Video Insights** :\n" + combined_responses +
+        "\n\n🎤 **Audio Breakdown** :\n" + transcription_result
     )
     messages = [
         {
@@ -258,14 +248,14 @@ def summary():
         bro_response = bro.chat.completions.create(
             model="llama-3.3-70b-versatile",
             messages=messages,
-            temperature=0.7,
+            temperature=0.9,
             top_p=0.9,
             stream=False
         )
         response_text = bro_response.choices[0].message.content
+        text_to_speech(response_text, output_file="output.mp3")
         return jsonify({'summary': response_text})
     except Exception as e:
         return jsonify({'error': str(e)})
-
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5034, debug=True, use_reloader=False)

@@ -1,10 +1,11 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <title>Sensory AI</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
   <style>
+    /* ---------------- Sensory AI Styles ---------------- */
     :root {
       --primary: #00ff88;
       --secondary: #7000ff;
@@ -12,13 +13,40 @@
       --dark-gray: #1a1a1a;
       --light: #ffffff;
     }
+    /* Previous styles remain unchanged */
 
+    /* Enhanced Eye Animations */
+    .robot .eye {
+      transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .eyes-open {
+      height: 15px !important;
+    }
+
+    .eyes-closed {
+      height: 0 !important;
+      filter: drop-shadow(0 0 0 transparent) !important;
+    }
+
+    /* Ear Animations */
+    .head::before,
+    .head::after {
+      transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .ears-active::before,
+    .ears-active::after {
+      width: 35px !important;
+      height: 50px !important;
+      top: 35px !important;
+    }
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
     }
-
+    
     body {
       font-family: 'Segoe UI', sans-serif;
       background-color: var(--dark);
@@ -29,17 +57,36 @@
       align-items: center;
       padding: 2rem;
     }
-
+    
     .dashboard {
       width: 100%;
       max-width: 1200px;
       padding: 0 1rem;
     }
-
+    
+    /* Two-column layout: Left for video & controls, Right for robot */
+    .columns {
+      display: flex;
+      gap: 2rem;
+      width: 100%;
+      align-items: flex-start;
+    }
+    
+    .left-column {
+      flex: 1;
+    }
+    
+    .right-column {
+      width: 300px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    
     #videoContainer {
       position: relative;
       width: 100%;
-      height: 600px;
+      height: 400px;
       border-radius: 20px;
       overflow: hidden;
       box-shadow: 0 0 30px rgba(0, 255, 136, 0.1);
@@ -48,19 +95,19 @@
       transition: all 0.3s ease;
       margin-bottom: 1rem;
     }
-
+    
     #videoContainer:hover {
       transform: translateY(-5px);
       box-shadow: 0 10px 40px rgba(0, 255, 136, 0.2);
     }
-
+    
     #videoFeed {
       width: 100%;
       height: 100%;
       object-fit: cover;
       border-radius: 18px;
     }
-
+    
     .controls {
       margin-top: 1rem;
       display: flex;
@@ -68,7 +115,7 @@
       justify-content: center;
       flex-wrap: wrap;
     }
-
+    
     .btn {
       padding: 1rem 2rem;
       border: none;
@@ -82,12 +129,12 @@
       align-items: center;
       gap: 0.5rem;
     }
-
+    
     .btn:hover {
       transform: scale(1.05);
       box-shadow: 0 0 20px rgba(0, 255, 136, 0.3);
     }
-
+    
     .btn:disabled {
       background: var(--dark-gray);
       color: #666;
@@ -95,7 +142,8 @@
       transform: none;
       box-shadow: none;
     }
-
+    
+    /* Updated Summary Result: variable size that grows with content */
     #summaryResult {
       margin-top: 1rem;
       width: 100%;
@@ -105,21 +153,9 @@
       border: 1px solid rgba(255, 255, 255, 0.1);
       position: relative;
       min-height: 150px;
-      max-height: 400px;
-      overflow-y: auto;
+      /* Removed max-height and overflow-y to let it expand naturally */
     }
-
-    #summaryResult::after {
-      content: '';
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      height: 40px;
-      background: linear-gradient(transparent, var(--dark-gray));
-      pointer-events: none;
-    }
-
+    
     .status-bar {
       position: absolute;
       top: 20px;
@@ -128,7 +164,7 @@
       gap: 1rem;
       z-index: 2;
     }
-
+    
     .status-item {
       background: rgba(0, 0, 0, 0.5);
       padding: 0.5rem 1rem;
@@ -138,106 +174,437 @@
       align-items: center;
       gap: 0.5rem;
     }
-
+    
     .pulse {
       animation: pulse 2s infinite;
     }
-
+    
     @keyframes pulse {
       0% { opacity: 0.8; }
       50% { opacity: 0.4; }
       100% { opacity: 0.8; }
     }
-
+    
     ::-webkit-scrollbar {
       width: 8px;
     }
-
+    
     ::-webkit-scrollbar-track {
       background: var(--dark-gray);
     }
-
+    
     ::-webkit-scrollbar-thumb {
       background: var(--primary);
       border-radius: 4px;
     }
-
+    
     .glow-text {
       text-shadow: 0 0 10px rgba(0, 255, 136, 0.5);
     }
-
-    /* Responsive design */
+    
+    /* Responsive design adjustments */
     @media (max-width: 768px) {
       #videoContainer {
-        height: 400px;
+        height: 300px;
+      }
+      .columns {
+        flex-direction: column;
+      }
+      .right-column {
+        width: 100%;
       }
     }
-
+    
     @media (max-width: 480px) {
       #videoContainer {
-        height: 300px;
+        height: 250px;
       }
       .btn {
         padding: 0.75rem 1.5rem;
         font-size: 14px;
       }
     }
+    
+    /* ---------------- Robot Styles (Integrated) ---------------- */
+    .robot {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      animation: float 4s ease-in-out infinite;
+    }
+    
+    /* Rectangular Head */
+    .head {
+      position: relative;
+      width: 180px;
+      height: 150px;
+      background: linear-gradient(145deg, #2d2d2d, #404040);
+      border-radius: 10px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+      z-index: 1;
+    }
+    
+    .head .eye {
+      position: absolute;
+      top: 50%;
+      width: 30px;
+      height: 15px;
+      background: #00ffff;
+      border-radius: 10px;
+      filter: drop-shadow(0 0 10px #00ffff);
+      transition: all 0.3s ease;
+    }
+    .head .eye.left { left: 40px; }
+    .head .eye.right { right: 40px; }
+    
+    /* Ears */
+    .head::before,
+    .head::after {
+      content: '';
+      position: absolute;
+      width: 25px;
+      height: 40px;
+      background: linear-gradient(145deg, #2d2d2d, #404040);
+      top: 40px;
+      border-radius: 10px;
+      z-index: -1;
+    }
+    .head::before {
+      left: -25px;
+      transform: rotate(-10deg);
+    }
+    .head::after {
+      right: -25px;
+      transform: rotate(10deg);
+    }
+    
+    /* Cap in French flag colors (here: orange, white, green) */
+    .cap {
+      position: absolute;
+      bottom: 100%;
+      left: 0;
+      width: 100%;
+      height: 50px;
+      background: linear-gradient(
+        to right,
+        orange 33.33%,
+        white 33.33%,
+        white 66.66%,
+        green 66.66%
+      );
+      border-radius: 40px 40px 0 0;
+      z-index: 2;
+    }
+    .cap::before {
+      content: '';
+      position: absolute;
+      bottom: -10px;
+      left: -10px;
+      width: calc(100% + 20px);
+      height: 10px;
+      background: #404040;
+      border-radius: 10px;
+    }
+    .cap::after {
+      content: '';
+      position: absolute;
+      top: 15px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 30px;
+      height: 30px;
+      background: blue;
+      border-radius: 50%;
+      filter: drop-shadow(0 0 5px blue);
+    }
+    
+    /* Neck */
+    .neck {
+      width: 40px;
+      height: 20px;
+      background: linear-gradient(145deg, #2d2d2d, #404040);
+      border-radius: 5px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+    
+    /* Body Assembly */
+    .body-assembly {
+      display: flex;
+      gap: 20px;
+      align-items: flex-start;
+    }
+    
+    /* Torso */
+    .torso {
+      width: 120px;
+      height: 180px;
+      background: linear-gradient(145deg, #353535, #282828);
+      border-radius: 40px 40px 20px 20px;
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+      position: relative;
+      animation: breathe 3s ease-in-out infinite;
+    }
+    
+    /* Arms */
+    .arm {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 5px;
+      transform-origin: top center;
+      animation: armSwing 3s ease-in-out infinite;
+    }
+    .arm.left {
+      animation-delay: -1.5s;
+    }
+    .arm.right {
+      animation-delay: 0s;
+    }
+    
+    .upper-arm {
+      width: 40px;
+      height: 70px;
+      background: linear-gradient(145deg, #2d2d2d, #404040);
+      border-radius: 20px;
+      position: relative;
+    }
+    .forearm {
+      width: 35px;
+      height: 80px;
+      background: linear-gradient(145deg, #353535, #2d2d2d);
+      border-radius: 15px;
+      position: relative;
+    }
+    
+    /* Hands */
+    .hand {
+      width: 30px;
+      height: 40px;
+      background: #404040;
+      border-radius: 8px;
+      position: relative;
+      margin-top: -10px;
+    }
+    .fingers {
+      position: absolute;
+      bottom: 0;
+      display: flex;
+      gap: 3px;
+      padding: 5px;
+    }
+    .finger {
+      width: 6px;
+      height: 20px;
+      background: #353535;
+      border-radius: 3px;
+      animation: fingerMove 2s infinite;
+    }
+    
+    /* Legs */
+    .legs {
+      display: flex;
+      gap: 40px;
+      margin-top: 10px;
+    }
+    .leg {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .thigh {
+      width: 50px;
+      height: 100px;
+      background: linear-gradient(145deg, #2d2d2d, #404040);
+      border-top-left-radius: 20px;
+      border-top-right-radius: 20px;
+      border-bottom-left-radius: 5px;
+      border-bottom-right-radius: 5px;
+      position: relative;
+    }
+    .calf {
+      width: 45px;
+      height: 90px;
+      background: linear-gradient(145deg, #353535, #2d2d2d);
+      border-radius: 10px;
+      margin-top: -10px;
+    }
+    .foot {
+      width: 55px;
+      height: 25px;
+      background: #2d2d2d;
+      border-radius: 8px;
+      margin-top: -5px;
+    }
+    /* ---------------- Voice Animation (Mouth) ---------------- */
+.mouth {
+  position: absolute;
+  bottom: 20px; /* Adjust this value to position the mouth vertically */
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 3px;
+  opacity: 0; /* Hidden by default */
+  transition: opacity 0.3s ease;
+}
+
+.mouth.active {
+  opacity: 1; /* Show when active */
+}
+
+.mouth .bar {
+  width: 4px;
+  height: 10px;
+  background: #00ffff; /* Blue color for the voice animation */
+  animation: voice 1s ease-in-out infinite;
+}
+
+/* Keyframes for the voice bar animation */
+@keyframes voice {
+  0% { transform: scaleY(1); }
+  50% { transform: scaleY(2); }
+  100% { transform: scaleY(1); }
+}
+    
+    /* Common Animations */
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-20px); }
+    }
+    
+    @keyframes breathe {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.02); }
+    }
+    
+    @keyframes fingerMove {
+      0%, 100% { transform: rotate(0deg); }
+      50% { transform: rotate(5deg); }
+    }
+    
+    @keyframes armSwing {
+      0%, 100% { transform: rotate(0deg); }
+      50% { transform: rotate(5deg); }
+    }
   </style>
 </head>
 <body>
   <div class="dashboard">
     <h1 class="glow-text" style="margin-bottom: 2rem;">Sensory AI <i class="fas fa-robot"></i></h1>
-    
-    <div id="videoContainer">
-      <div class="status-bar">
-        <div class="status-item">
-          <i class="fas fa-circle pulse" style="color: var(--primary);"></i>
-          <span>LIVE FEED</span>
+    <div class="columns">
+      <!-- Left Column: Video Container & Controls -->
+      <div class="left-column">
+        <div id="videoContainer">
+          <div class="status-bar">
+            <div class="status-item">
+              <i class="fas fa-circle pulse" style="color: var(--primary);"></i>
+              <span>LIVE FEED</span>
+            </div>
+          </div>
+          <img id="videoFeed" src="https://media.giphy.com/media/3o7aD2saalBwwftBIY/giphy.gif" alt="Video Feed">
+        </div>
+        <div class="controls">
+          <button class="btn" id="startButton">
+            <i class="fas fa-play"></i>
+            Start Camera
+          </button>
+          <button class="btn" id="stopButton" disabled>
+            <i class="fas fa-stop"></i>
+            Stop Camera
+          </button>
+          <button class="btn" id="summaryButton">
+            <i class="fas fa-brain"></i>
+            Hear Me Out!
+          </button>
+        </div>
+        <div id="summaryResult"></div>
+      </div>
+      <!-- Right Column: Robot -->
+      <div class="right-column">
+        <div class="robot">
+          <!-- Head with Cap and Ears -->
+          <div class="head">
+            <div class="cap"></div>
+            <div class="eye left"></div>
+            <div class="eye right"></div>
+            <!-- New Mouth Animation Element -->
+            <div class="mouth">
+              <div class="bar" style="animation-delay: 0s;"></div>
+              <div class="bar" style="animation-delay: 0.1s;"></div>
+              <div class="bar" style="animation-delay: 0.2s;"></div>
+              <div class="bar" style="animation-delay: 0.3s;"></div>
+              <div class="bar" style="animation-delay: 0.4s;"></div>
+            </div>
+          </div>
+          <!-- Neck -->
+          <div class="neck"></div>
+          <!-- Body Assembly with Arms and Torso -->
+          <div class="body-assembly">
+            <!-- Left Arm -->
+            <div class="arm left">
+              <div class="upper-arm"></div>
+              <div class="forearm"></div>
+              <div class="hand">
+                <div class="fingers">
+                  <div class="finger"></div>
+                  <div class="finger"></div>
+                  <div class="finger"></div>
+                </div>
+              </div>
+            </div>
+            <!-- Torso -->
+            <div class="torso"></div>
+            <!-- Right Arm -->
+            <div class="arm right">
+              <div class="upper-arm"></div>
+              <div class="forearm"></div>
+              <div class="hand">
+                <div class="fingers">
+                  <div class="finger"></div>
+                  <div class="finger"></div>
+                  <div class="finger"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- Legs -->
+          <div class="legs">
+            <div class="leg left">
+              <div class="thigh"></div>
+              <div class="calf"></div>
+              <div class="foot"></div>
+            </div>
+            <div class="leg right">
+              <div class="thigh"></div>
+              <div class="calf"></div>
+              <div class="foot"></div>
+            </div>
+          </div>
         </div>
       </div>
-      <img id="videoFeed" src="https://media.giphy.com/media/3o7aD2saalBwwftBIY/giphy.gif" alt="Video Feed">
     </div>
-
-    <div class="controls">
-      <button class="btn" id="startButton">
-        <i class="fas fa-play"></i>
-        Start Camera
-      </button>
-      <button class="btn" id="stopButton" disabled>
-        <i class="fas fa-stop"></i>
-        Stop Camera
-      </button>
-      <button class="btn" id="summaryButton">
-        <i class="fas fa-brain"></i>
-        Hear Me Out!
-      </button>
-    </div>
-
-    <div id="summaryResult"></div>
   </div>
 
   <script>
+    // ---------------- Sensory AI Script ----------------
     const startButton = document.getElementById('startButton');
     const stopButton = document.getElementById('stopButton');
     const summaryButton = document.getElementById('summaryButton');
     const videoFeed = document.getElementById('videoFeed');
     const summaryResult = document.getElementById('summaryResult');
     const placeholderGif = "https://media.giphy.com/media/3o7aD2saalBwwftBIY/giphy.gif";
-
-    // Format the summary text into bullet points using regex-based splitting
+    
     function formatSummary(text) {
-      // Split by newlines (one or more) and filter out empty lines
       let lines = text.split(/\n+/).filter(line => line.trim() !== "");
       let formatted = "<ul>";
       for (let line of lines) {
-        // Remove any common bullet markers and extra whitespace
         line = line.replace(/^[-*•\s]+/, "").trim();
         formatted += `<li>${line}</li>`;
       }
       formatted += "</ul>";
       return formatted;
     }
-
+    
     startButton.addEventListener('click', function() {
       fetch('/start_camera', { method: 'POST' })
         .then(response => response.json())
@@ -249,7 +616,7 @@
         })
         .catch(error => console.error('Error starting camera:', error));
     });
-
+    
     stopButton.addEventListener('click', function() {
       fetch('/stop_camera', { method: 'POST' })
         .then(response => response.json())
@@ -261,8 +628,14 @@
         })
         .catch(error => console.error('Error stopping camera:', error));
     });
-
+    
     summaryButton.addEventListener('click', function() {
+      // Activate the mouth animation
+      const mouth = document.querySelector('.head .mouth');
+      if (mouth) {
+        mouth.classList.add('active');
+      }
+      
       summaryResult.innerHTML = '<div class="status-item"><i class="fas fa-spinner fa-spin"></i> Analyzing observations...</div>';
       
       fetch('/summary')
@@ -283,15 +656,116 @@
               Error: ${data.error || 'Unknown error'}
             </div>`;
           }
+          // Remove voice animation after analysis
+          if (mouth) {
+            mouth.classList.remove('active');
+          }
         })
         .catch(error => {
           summaryResult.innerHTML = `<div class="status-item" style="color: #ff5555;">
             <i class="fas fa-exclamation-triangle"></i>
             Connection Error
           </div>`;
+          // Remove voice animation on error
+          if (mouth) {
+            mouth.classList.remove('active');
+          }
           console.error('Error generating summary:', error);
         });
     });
+    
+    // ---------------- Robot Script ----------------
+    document.addEventListener('mousemove', (e) => {
+      const eyes = document.querySelectorAll('.robot .eye');
+      const mouseX = e.clientX;
+      const mouseY = e.clientY;
+      
+      eyes.forEach(eye => {
+        const eyeRect = eye.getBoundingClientRect();
+        const eyeX = eyeRect.left + eyeRect.width / 2;
+        const eyeY = eyeRect.top + eyeRect.height / 2;
+        const angle = Math.atan2(mouseY - eyeY, mouseX - eyeX);
+        const distance = Math.min(7, Math.hypot(mouseX - eyeX, mouseY - eyeY) / 50);
+        
+        eye.style.transform = `rotate(${angle}rad) scaleY(${1 + distance / 10})`;
+      });
+    });
+    
+    function randomBlink() {
+      const eyes = document.querySelectorAll('.robot .eye');
+      const blinkDuration = 200;
+      
+      eyes.forEach(eye => {
+        eye.style.height = '0px';
+      });
+      
+      setTimeout(() => {
+        eyes.forEach(eye => {
+          eye.style.height = '15px';
+        });
+      }, blinkDuration);
+    }
+    
+    setInterval(randomBlink, Math.random() * 4000 + 2000);
+
+    // Modified Video Control Functions
+    startButton.addEventListener('click', function() {
+      // Toggle robot animations
+      document.querySelectorAll('.robot .eye').forEach(eye => {
+        eye.classList.remove('eyes-closed');
+        eye.classList.add('eyes-open');
+      });
+      document.querySelector('.head').classList.add('ears-active');
+
+      // Original camera logic
+      fetch('/start_camera', { method: 'POST' })
+        .then(response => response.json())
+        .then(data => {
+          videoFeed.src = '/video_feed';
+          startButton.disabled = true;
+          stopButton.disabled = false;
+          videoFeed.style.border = `2px solid var(--primary)`;
+        })
+        .catch(error => console.error('Error starting camera:', error));
+    });
+
+    stopButton.addEventListener('click', function() {
+      // Toggle robot animations
+      document.querySelectorAll('.robot .eye').forEach(eye => {
+        eye.classList.remove('eyes-open');
+        eye.classList.add('eyes-closed');
+      });
+      document.querySelector('.head').classList.remove('ears-active');
+
+      // Original camera logic
+      fetch('/stop_camera', { method: 'POST' })
+        .then(response => response.json())
+        .then(data => {
+          videoFeed.src = placeholderGif;
+          startButton.disabled = false;
+          stopButton.disabled = true;
+          videoFeed.style.border = 'none';
+        })
+        .catch(error => console.error('Error stopping camera:', error));
+    });
+
+    // Modified Blink Function to respect manual states
+    function randomBlink() {
+      if(startButton.disabled) { // Only blink if camera is active
+        const eyes = document.querySelectorAll('.robot .eye');
+        const blinkDuration = 200;
+        
+        eyes.forEach(eye => {
+          eye.style.height = '0px';
+        });
+        
+        setTimeout(() => {
+          eyes.forEach(eye => {
+            eye.style.height = '15px';
+          });
+        }, blinkDuration);
+      }
+    }
   </script>
 </body>
 </html>
